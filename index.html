@@ -1,11 +1,11 @@
-html<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Espaço de Estudos</title>
     <style>
-        /* Estilização Geral do Site */
+        /* Estilização Geral */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
@@ -33,6 +33,15 @@ html<!DOCTYPE html>
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             margin-bottom: 20px;
         }
+        /* Grid para dividir Pomodoro e Criação */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid-layout { grid-template-columns: 1fr; }
+        }
         /* Formulários e Botões */
         input[type="text"], textarea {
             width: 100%;
@@ -51,11 +60,26 @@ html<!DOCTYPE html>
             border-radius: 5px;
             cursor: pointer;
             width: 100%;
+            margin-bottom: 5px;
         }
-        button:hover {
-            background-color: #27AE60;
+        button:hover { background-color: #27AE60; }
+        
+        /* Estilo do Cronômetro Pomodoro */
+        .pomodoro-container {
+            text-align: center;
         }
-        /* Lista de Resumos Criados */
+        .timer-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #E74C3C;
+            margin: 15px 0;
+        }
+        .btn-pause { background-color: #F1C40F; }
+        .btn-pause:hover { background-color: #D4AC0D; }
+        .btn-reset { background-color: #95A5A6; }
+        .btn-reset:hover { background-color: #7F8C8D; }
+
+        /* Lista de Resumos */
         .resumo-item {
             background: #f9f9f9;
             border-left: 5px solid #4A90E2;
@@ -73,9 +97,9 @@ html<!DOCTYPE html>
             right: 15px;
             top: 15px;
         }
-        .btn-deletar:hover {
-            background-color: #C0392B;
-        }
+        .btn-deletar:hover { background-color: #C0392B; }
+        footer { text-align: center; margin-top: 30px; font-size: 14px; }
+        footer a { color: #4A90E2; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -83,34 +107,90 @@ html<!DOCTYPE html>
 <div class="container">
     <header>
         <h1>Plataforma de Estudos Inteligente</h1>
-        <p>Organize suas matérias e crie resumos incríveis!</p>
+        <p>Organize suas matérias, controle seu tempo e foque no sucesso!</p>
     </header>
 
-    <!-- Área de Criação -->
-    <div class="card">
-        <h2>Criar Novo Resumo</h2>
-        <input type="text" id="materia" placeholder="Ex: Matemática, História...">
-        <input type="text" id="titulo" placeholder="Título do assunto (Ex: Frações)">
-        <textarea id="conteúdo" rows="4" placeholder="Digite aqui o seu resumo explicativo..."></textarea>
-        <button onclick="salvarResumo()">Adicionar Resumo</button>
+    <div class="grid-layout">
+        <!-- Cronômetro Pomodoro -->
+        <div class="card pomodoro-container">
+            <h2>⏱️ Cronômetro Pomodoro</h2>
+            <div id="timerStatus" style="font-weight: bold; color: #777;">Hora de Focar!</div>
+            <div class="timer-display" id="timer">25:00</div>
+            <button onclick="iniciarTimer()">Iniciar</button>
+            <button class="btn-pause" onclick="pausarTimer()">Pausar</button>
+            <button class="btn-reset" onclick="resetarTimer()">Resetar</button>
+        </div>
+
+        <!-- Área de Criação -->
+        <div class="card">
+            <h2>📝 Criar Novo Resumo</h2>
+            <input type="text" id="materia" placeholder="Ex: Matemática, História...">
+            <input type="text" id="titulo" placeholder="Título do assunto (Ex: Frações)">
+            <textarea id="conteúdo" rows="4" placeholder="Digite aqui o seu resumo explicativo..."></textarea>
+            <button onclick="salvarResumo()">Adicionar Resumo</button>
+        </div>
     </div>
 
     <!-- Área de Exibição -->
     <div class="card">
-        <h2>Meus Resumos Salvos</h2>
+        <h2>📚 Meus Resumos Salvos</h2>
         <div id="listaResumos">
             <p style="color: #777;">Nenhum resumo criado ainda. Comece acima!</p>
         </div>
     </div>
+
+    <footer>
+        <p>© Plataforma de Estudos - <a href="privacidade.html">Política de Privacidade</a></p>
+    </footer>
 </div>
 
 <script>
-    // Função para carregar os resumos salvos ao abrir a página
-    window.onload = function() {
-        exibirResumos();
-    };
+    // --- CÓDIGO DO POMODORO ---
+    let tempoRestante = 25 * 60; 
+    let timerId = null;
+    let modoFoco = true; 
 
-    // Função para salvar um novo resumo
+    function atualizarDisplay() {
+        const minutos = Math.floor(tempoRestante / 60).toString().padStart(2, '0');
+        const segundos = (tempoRestante % 60).toString().padStart(2, '0');
+        document.getElementById('timer').innerText = `${minutos}:${segundos}`;
+    }
+
+    function iniciarTimer() {
+        if (timerId !== null) return;
+        timerId = setInterval(() => {
+            if (tempoRestante > 0) {
+                tempoRestante--;
+                atualizarDisplay();
+            } else {
+                clearInterval(timerId);
+                timerId = null;
+                alert(modoFoco ? "Hora de descansar um pouco!" : "De volta ao trabalho!");
+                // Alterna entre foco (25 min) e descanso (5 min)
+                modoFoco = !modoFoco;
+                tempoRestante = modoFoco ? 25 * 60 : 5 * 60;
+                document.getElementById('timerStatus').innerText = modoFoco ? "Hora de Focar!" : "Pausa para Descanso";
+                atualizarDisplay();
+            }
+        }, 1000);
+    }
+
+    function pausarTimer() {
+        clearInterval(timerId);
+        timerId = null;
+    }
+
+    function resetarTimer() {
+        pausarTimer();
+        modoFoco = true;
+        tempoRestante = 25 * 60;
+        document.getElementById('timerStatus').innerText = "Hora de Focar!";
+        atualizarDisplay();
+    }
+
+    // --- CÓDIGO DOS RESUMOS (LOCALSTORAGE) ---
+    window.onload = function() { exibirResumos(); };
+
     function salvarResumo() {
         const materia = document.getElementById('materia').value;
         const titulo = document.getElementById('titulo').value;
@@ -121,29 +201,17 @@ html<!DOCTYPE html>
             return;
         }
 
-        const novoResumo = {
-            id: Date.now(),
-            materia: materia,
-            titulo: titulo,
-            conteudo: conteudo
-        };
-
-        // Pega os resumos antigos ou cria uma lista vazia
+        const novoResumo = { id: Date.now(), materia, titulo, conteudo };
         let resumos = JSON.parse(localStorage.getItem('meusResumos')) || [];
         resumos.push(novoResumo);
-
-        // Salva no navegador (não perde os dados ao atualizar a página)
         localStorage.setItem('meusResumos', JSON.stringify(resumos));
 
-        // Limpa os campos digitados
         document.getElementById('materia').value = '';
         document.getElementById('titulo').value = '';
         document.getElementById('conteúdo').value = '';
-
         exibirResumos();
     }
 
-    // Função para mostrar os resumos na tela
     function exibirResumos() {
         const lista = document.getElementById('listaResumos');
         let resumos = JSON.parse(localStorage.getItem('meusResumos')) || [];
@@ -152,9 +220,7 @@ html<!DOCTYPE html>
             lista.innerHTML = '<p style="color: #777;">Nenhum resumo criado ainda. Comece acima!</p>';
             return;
         }
-
-        lista.innerHTML = ''; // Limpa a tela antes de desenhar
-
+        lista.innerHTML = '';
         resumos.forEach(resumo => {
             lista.innerHTML += `
                 <div class="resumo-item">
@@ -166,7 +232,6 @@ html<!DOCTYPE html>
         });
     }
 
-    // Função para deletar um resumo específico
     function deletarResumo(id) {
         let resumos = JSON.parse(localStorage.getItem('meusResumos')) || [];
         resumos = resumos.filter(resumo => resumo.id !== id);
@@ -174,6 +239,5 @@ html<!DOCTYPE html>
         exibirResumos();
     }
 </script>
-
 </body>
 </html>
