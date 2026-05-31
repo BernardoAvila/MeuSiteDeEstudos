@@ -1,0 +1,179 @@
+html<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Espaço de Estudos</title>
+    <style>
+        /* Estilização Geral do Site */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        header {
+            background-color: #4A90E2;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        /* Formulários e Botões */
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #2ECC71;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #27AE60;
+        }
+        /* Lista de Resumos Criados */
+        .resumo-item {
+            background: #f9f9f9;
+            border-left: 5px solid #4A90E2;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0 5px 5px 0;
+            position: relative;
+        }
+        .btn-deletar {
+            background-color: #E74C3C;
+            padding: 5px 10px;
+            font-size: 12px;
+            width: auto;
+            position: absolute;
+            right: 15px;
+            top: 15px;
+        }
+        .btn-deletar:hover {
+            background-color: #C0392B;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Plataforma de Estudos Inteligente</h1>
+        <p>Organize suas matérias e crie resumos incríveis!</p>
+    </header>
+
+    <!-- Área de Criação -->
+    <div class="card">
+        <h2>Criar Novo Resumo</h2>
+        <input type="text" id="materia" placeholder="Ex: Matemática, História...">
+        <input type="text" id="titulo" placeholder="Título do assunto (Ex: Frações)">
+        <textarea id="conteúdo" rows="4" placeholder="Digite aqui o seu resumo explicativo..."></textarea>
+        <button onclick="salvarResumo()">Adicionar Resumo</button>
+    </div>
+
+    <!-- Área de Exibição -->
+    <div class="card">
+        <h2>Meus Resumos Salvos</h2>
+        <div id="listaResumos">
+            <p style="color: #777;">Nenhum resumo criado ainda. Comece acima!</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Função para carregar os resumos salvos ao abrir a página
+    window.onload = function() {
+        exibirResumos();
+    };
+
+    // Função para salvar um novo resumo
+    function salvarResumo() {
+        const materia = document.getElementById('materia').value;
+        const titulo = document.getElementById('titulo').value;
+        const conteudo = document.getElementById('conteúdo').value;
+
+        if (!materia || !titulo || !conteudo) {
+            alert("Por favor, preencha todos os campos!");
+            return;
+        }
+
+        const novoResumo = {
+            id: Date.now(),
+            materia: materia,
+            titulo: titulo,
+            conteudo: conteudo
+        };
+
+        // Pega os resumos antigos ou cria uma lista vazia
+        let resumos = JSON.parse(localStorage.getItem('meusResumos')) || [];
+        resumos.push(novoResumo);
+
+        // Salva no navegador (não perde os dados ao atualizar a página)
+        localStorage.setItem('meusResumos', JSON.stringify(resumos));
+
+        // Limpa os campos digitados
+        document.getElementById('materia').value = '';
+        document.getElementById('titulo').value = '';
+        document.getElementById('conteúdo').value = '';
+
+        exibirResumos();
+    }
+
+    // Função para mostrar os resumos na tela
+    function exibirResumos() {
+        const lista = document.getElementById('listaResumos');
+        let resumos = JSON.parse(localStorage.getItem('meusResumos')) || [];
+
+        if (resumos.length === 0) {
+            lista.innerHTML = '<p style="color: #777;">Nenhum resumo criado ainda. Comece acima!</p>';
+            return;
+        }
+
+        lista.innerHTML = ''; // Limpa a tela antes de desenhar
+
+        resumos.forEach(resumo => {
+            lista.innerHTML += `
+                <div class="resumo-item">
+                    <h3><strong>[${resumo.materia}]</strong> ${resumo.titulo}</h3>
+                    <p>${resumo.conteudo}</p>
+                    <button class="btn-deletar" onclick="deletarResumo(${resumo.id})">Apagar</button>
+                </div>
+            `;
+        });
+    }
+
+    // Função para deletar um resumo específico
+    function deletarResumo(id) {
+        let resumos = JSON.parse(localStorage.getItem('meusResumos')) || [];
+        resumos = resumos.filter(resumo => resumo.id !== id);
+        localStorage.setItem('meusResumos', JSON.stringify(resumos));
+        exibirResumos();
+    }
+</script>
+
+</body>
+</html>
