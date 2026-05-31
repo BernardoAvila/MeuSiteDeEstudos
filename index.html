@@ -139,8 +139,14 @@
         </div>
     </div>
 
-    <footer>
-        <p>© Plataforma de Estudos - <a href="privacidade.html">Política de Privacidade</a></p>
+    <!-- Rodapé e Contador de Visitas -->
+    <footer style="text-align: center; margin-top: 30px; font-size: 14px;">
+        <p>© Plataforma de Estudos - <a href="privacidade.html" style="color: #4A90E2; text-decoration: none;">Política de Privacidade</a></p>
+        
+        <div style="margin-top: 15px;">
+            <p style="font-size: 14px; color: #777; margin-bottom: 5px;">Total de visitantes:</p>
+            <img src="https://glitch.me" alt="Contador de Visitas">
+        </div>
     </footer>
 </div>
 
@@ -166,7 +172,6 @@
                 clearInterval(timerId);
                 timerId = null;
                 alert(modoFoco ? "Hora de descansar um pouco!" : "De volta ao trabalho!");
-                // Alterna entre foco (25 min) e descanso (5 min)
                 modoFoco = !modoFoco;
                 tempoRestante = modoFoco ? 25 * 60 : 5 * 60;
                 document.getElementById('timerStatus').innerText = modoFoco ? "Hora de Focar!" : "Pausa para Descanso";
